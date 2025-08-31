@@ -1,35 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import "./App.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Login from "./components/Auth/Login/Login";
+import Signup from "./components/Auth/Signup/Signup";
+import AboutPage from "./components/AboutUs/AboutPage";
+import ContactPage from "./components/ContactUs/ContactPage";
+import StoresList from "./components/Stores/StoresList";
+import { Navbar } from "./components/Nav/Navbar";
+import HomePage from "./components/HeroSection/HomePage";
+import AdminDashboard from "./components/Admin/AdminDashboard";
+import Footer from "./components/Footer/Footer";
+import StoresPage from "./components/StoresDetails/StoresPage";
+import OwnerDashboardPage from "./components/OwnerDash/OwnerDashBoardPage";
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />   
+        <Route path="/login" element={<Login />} /> 
+        <Route path="/signup" element={<Signup />} /> 
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/stores" element={<StoresPage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/storeowner" element={< OwnerDashboardPage />} />
+        {/* <Route path="/storedetails" element={<StoresPage />} /> */}
+      </Routes>
+      <Footer/>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
