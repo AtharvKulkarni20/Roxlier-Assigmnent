@@ -1,139 +1,168 @@
 "use client"
 
 import { StoreCard } from "./StoreCard"
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Loader2 } from "lucide-react"
 
-const stores = [
-  {
-    id: "freshmart",
-    name: "FreshMart",
-    rating: 4.6,
-    description: "Neighborhood grocer with fresh produce, quick delivery, and friendly service.",
-    logoUrl: "/freshmart-logo.png",
-    city: "San Francisco",
-    address: "123 Market St, San Francisco, CA",
-  },
-  {
-    id: "techhub",
-    name: "TechHub",
-    rating: 4.2,
-    description: "Electronics and gadgets with transparent reviews and solid warranty support.",
-    logoUrl: "/techhub-logo.png",
-    city: "San Jose",
-    address: "77 First St, San Jose, CA",
-  },
-  {
-    id: "stylecorner",
-    name: "StyleCorner",
-    rating: 4.0,
-    description: "Trendy apparel and accessories from local designers and emerging brands.",
-    logoUrl: "/stylecorner-logo.png",
-    city: "Los Angeles",
-    address: "501 Sunset Blvd, Los Angeles, CA",
-  },
-  {
-    id: "booknest",
-    name: "BookNest",
-    rating: 4.8,
-    description: "Independent bookstore with curated picks, events, and a cozy reading nook.",
-    logoUrl: "/booknest-logo.png",
-    city: "Portland",
-    address: "42 Hawthorne Ave, Portland, OR",
-  },
-  {
-    id: "petpals",
-    name: "PetPals",
-    rating: 3.9,
-    description: "Pet supplies and grooming with helpful staff and reliable inventory.",
-    logoUrl: "/petpals-logo.png",
-    city: "Seattle",
-    address: "19 Pine St, Seattle, WA",
-  },
-  {
-    id: "homefair",
-    name: "HomeFair",
-    rating: 4.3,
-    description: "Home essentials and decor with fair pricing and easy returns.",
-    logoUrl: "/homefair-logo.png",
-    city: "San Francisco",
-    address: "880 Mission St, San Francisco, CA",
-  },
-]
+// API helper function
+const makeAuthenticatedRequest = async (url, options = {}) => {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  
+  const config = {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      ...options.headers
+    }
+  };
+  
+  const response = await fetch(`http://localhost:5000/api${url}`, config);
+  const data = await response.json();
+  
+  if (!response.ok) {
+    if (response.status === 401 || response.status === 403) {
+      // Token expired or invalid
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      throw new Error('Authentication failed. Please login again.');
+    }
+    throw new Error(data.error || 'Request failed');
+  }
+  
+  return data;
+};
 
-export default function StoresPage(store) {
+export default function StoresPage({ onStoreClick }) {
+  const [stores, setStores] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [query, setQuery] = useState("")
   const [city, setCity] = useState("all")
-   const [selectedRating, setSelectedRating] = useState(store.userRating || 0)
-  const [showRatingInput, setShowRatingInput] = useState(false)
+  const [sortBy, setSortBy] = useState("name")
+  const [sortOrder, setSortOrder] = useState("ASC")
 
-  // Handle rating submission
-  const handleRatingSubmit = async () => {
-    if (selectedRating > 0 && onRatingSubmit) {
-      try {
-        await onRatingSubmit(store.id, selectedRating)
-        setShowRatingInput(false)
-      } catch (error) {
-        console.error('Failed to submit rating:', error)
-        // Reset to previous rating on error
-        setSelectedRating(store.userRating || 0)
+  // Fetch stores from backend
+  const fetchStores = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      
+      const params = new URLSearchParams({
+        sortBy,
+        sortOrder
+      })
+      
+      if (query.trim()) {
+        params.append('search', query.trim())
       }
+      
+      const data = await makeAuthenticatedRequest(`/user/stores?${params}`)
+      
+      // Transform backend data to match frontend expectations
+      const transformedStores = data.stores.map(store => ({
+        id: store.id,
+        name: store.name,
+        rating: parseFloat(store.averageRating) || 0,
+        description: store.address, // Using address as description for now
+        logoUrl: `/placeholder.svg?height=64&width=64&query=${encodeURIComponent(store.name)}`,
+        city: extractCityFromAddress(store.address),
+        address: store.address,
+        email: store.email,
+        userRating: store.userRating,
+        totalRatings: store.totalRatings,
+        overallRating: parseFloat(store.averageRating) || 0
+      }))
+      
+      setStores(transformedStores)
+    } catch (err) {
+      console.error('Failed to fetch stores:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
-  // Handle rating cancel
-  const handleRatingCancel = () => {
-    setSelectedRating(store.userRating || 0)
-    setShowRatingInput(false)
-  }
-const StarRating = ({ rating, onRatingChange, readonly = false, size = "sm" }) => {
-    const starSize = size === "lg" ? "h-6 w-6" : "h-4 w-4"
-    
-    return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type="button"
-            disabled={readonly || isSubmittingRating}
-            onClick={() => !readonly && onRatingChange && onRatingChange(star)}
-            className={cn(
-              "transition-colors",
-              !readonly && "hover:text-yellow-400 cursor-pointer",
-              readonly && "cursor-default",
-              isSubmittingRating && "opacity-50"
-            )}
-          >
-            <Star
-              className={cn(
-                starSize,
-                star <= rating
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "fill-muted stroke-muted-foreground"
-              )}
-            />
-          </button>
-        ))}
-      </div>
-    )
+  // Helper function to extract city from address
+  const extractCityFromAddress = (address) => {
+    if (!address) return "Unknown"
+    // Simple extraction - assumes city is before the last comma
+    const parts = address.split(',')
+    return parts.length > 1 ? parts[parts.length - 2].trim() : parts[0].trim()
   }
 
+  // Fetch stores on component mount and when sort changes
+  useEffect(() => {
+    fetchStores()
+  }, [sortBy, sortOrder])
+
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchStores()
+    }, 300)
+    
+    return () => clearTimeout(timeoutId)
+  }, [query])
+
+  // Get unique cities from stores
   const cities = useMemo(() => {
     const set = new Set(stores.map((s) => s.city))
     return Array.from(set).sort()
-  }, [])
+  }, [stores])
 
+  // Filter stores by city (client-side filtering for city)
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
     return stores.filter((s) => {
       const matchesCity = city === "all" ? true : s.city === city
-      if (!q) return matchesCity
-      const haystack = `${s.name} ${s.description} ${s.city} ${s.address}`.toLowerCase()
-      return matchesCity && haystack.includes(q)
+      return matchesCity
     })
-  }, [query, city])
+  }, [stores, city])
+
+  const handleClearFilters = () => {
+    setQuery("")
+    setCity("all")
+    setSortBy("name")
+    setSortOrder("ASC")
+  }
+
+  const handleSortChange = (value) => {
+    const [field, order] = value.split('-')
+    setSortBy(field)
+    setSortOrder(order)
+  }
+
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2 text-muted-foreground">Loading stores...</span>
+        </div>
+      </main>
+    )
+  }
+
+  if (error) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button onClick={fetchStores} className="mt-4">
+          Try Again
+        </Button>
+      </main>
+    )
+  }
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
@@ -143,15 +172,17 @@ const StarRating = ({ rating, onRatingChange, readonly = false, size = "sm" }) =
         <p className="mt-1 text-sm text-muted-foreground">Browse stores and see community ratings at a glance.</p>
       </header>
 
+      {/* Filters and Search */}
       <section className="mb-6 flex flex-col gap-3 md:flex-row md:items-center">
         <div className="flex-1">
           <Input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by name, description, city, or address"
+            placeholder="Search by name, address, or email"
             aria-label="Search stores"
           />
         </div>
+        
         <div className="w-full md:w-60">
           <Select value={city} onValueChange={(v) => setCity(v)}>
             <SelectTrigger aria-label="Filter by city">
@@ -167,12 +198,25 @@ const StarRating = ({ rating, onRatingChange, readonly = false, size = "sm" }) =
             </SelectContent>
           </Select>
         </div>
+
+        <div className="w-full md:w-48">
+          <Select value={`${sortBy}-${sortOrder}`} onValueChange={handleSortChange}>
+            <SelectTrigger aria-label="Sort stores">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name-ASC">Name A-Z</SelectItem>
+              <SelectItem value="name-DESC">Name Z-A</SelectItem>
+              <SelectItem value="avg_rating-DESC">Rating High-Low</SelectItem>
+              <SelectItem value="avg_rating-ASC">Rating Low-High</SelectItem>
+              <SelectItem value="address-ASC">Address A-Z</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
         <Button
           variant="secondary"
-          onClick={() => {
-            setQuery("")
-            setCity("all")
-          }}
+          onClick={handleClearFilters}
         >
           Clear
         </Button>
@@ -182,16 +226,29 @@ const StarRating = ({ rating, onRatingChange, readonly = false, size = "sm" }) =
         Showing {filtered.length} {filtered.length === 1 ? "result" : "results"}
       </p>
 
-      {/* List */}
+      {/* Stores List */}
       <ul className="flex flex-col gap-4">
         {filtered.length === 0 ? (
-          <li className="rounded-lg border p-6 text-sm text-muted-foreground">
-            No stores found. Try a different search or choose another location.
+          <li className="rounded-lg border p-6 text-center text-sm text-muted-foreground">
+            {stores.length === 0 ? "No stores available." : "No stores found. Try a different search or choose another location."}
           </li>
         ) : (
-          filtered.map((s) => <StoreCard key={s.id} store={s} />)
+          filtered.map((store) => (
+            <StoreCard 
+              key={store.id} 
+              store={store} 
+              onStoreClick={onStoreClick}
+            />
+          ))
         )}
       </ul>
+
+      {/* Refresh button */}
+      <div className="mt-8 text-center">
+        <Button variant="outline" onClick={fetchStores}>
+          Refresh Stores
+        </Button>
+      </div>
     </main>
   )
 }
