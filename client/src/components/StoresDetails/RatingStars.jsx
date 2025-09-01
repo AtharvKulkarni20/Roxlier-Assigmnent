@@ -1,52 +1,37 @@
 "use client"
 
+import React, { useState } from "react"
 import { Star } from "lucide-react"
-import * as React from "react"
-import { cn } from "@/lib/utils"
 
-const sizes = {
-  sm: 16,
-  md: 22,
-  lg: 28,
-}
-
-export function RatingStars({ value, onChange, readOnly = false, size = "md", className, ...rest }) {
-  const [hover, setHover] = React.useState(null)
-  const interactive = !readOnly && typeof onChange === "function"
-  const dimension = sizes[size]
+export function RatingStars({ value, onChange, max = 5, size = 22, readOnly = false, ...rest }) {
+  const [hover, setHover] = useState(null)
+  const stars = Array.from({ length: max }, (_, i) => i + 1)
+  const active = hover ?? value
 
   return (
-    <div
-      className={cn("inline-flex items-center gap-1", className)}
-      role={interactive ? "slider" : "img"}
-      aria-valuemin={interactive ? 0 : undefined}
-      aria-valuemax={interactive ? 5 : undefined}
-      aria-valuenow={interactive ? value : undefined}
-      {...rest}
-    >
-      {Array.from({ length: 5 }).map((_, i) => {
-        const current = i + 1
-        const active = (hover ?? value) >= current
+    <div className="flex items-center gap-1" role="group" {...rest}>
+      {stars.map((n) => {
+        const filled = n <= active
         return (
           <button
-            key={current}
+            key={n}
             type="button"
-            className={cn("p-0.5", interactive ? "cursor-pointer" : "cursor-default")}
-            onMouseEnter={() => interactive && setHover(current)}
-            onMouseLeave={() => interactive && setHover(null)}
-            onClick={() => interactive && onChange?.(current)}
-            aria-label={`Rate ${current} star${current > 1 ? "s" : ""}`}
-            disabled={!interactive}
+            className="p-0.5"
+            aria-label={`Rate ${n} out of ${max}`}
+            onMouseEnter={() => !readOnly && setHover(n)}
+            onMouseLeave={() => !readOnly && setHover(null)}
+            onClick={() => !readOnly && onChange?.(n)}
+            disabled={readOnly}
           >
             <Star
-              width={dimension}
-              height={dimension}
-              className={cn(active ? "fill-amber-400 text-amber-400" : "text-muted-foreground", "transition-colors")}
+              width={size}
+              height={size}
+              className={filled ? "fill-amber-500 stroke-amber-500" : "stroke-amber-500"}
             />
           </button>
         )
       })}
-      <span className="sr-only">{`Current rating ${value} out of 5`}</span>
+      <span className="ml-2 text-sm text-muted-foreground">{value.toFixed(1)}</span>
     </div>
   )
 }

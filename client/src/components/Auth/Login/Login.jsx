@@ -15,11 +15,14 @@ import { Label } from "../../ui/label";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import toast, { Toaster } from "react-hot-toast";
+import { UserContext } from "@/context/userContextProvider";
+import { useNavigate } from "react-router-dom";
 
 export function Login({ onSubmit }) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-
+  const { login, user } = React.useContext(UserContext);
+  const navigate = useNavigate();
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -47,11 +50,28 @@ export function Login({ onSubmit }) {
         form
       );
       localStorage.setItem("token", res.data.token);
+      await login();
+
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
       toast.success("Login successful!");
     } catch (err) {
       toast.error(err.response?.data?.error || "Something went wrong");
     }
   };
+
+  React.useEffect(() => {
+    if (user) {
+      if (user.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
+    }
+  });
 
   return (
     <>
@@ -107,7 +127,9 @@ export function Login({ onSubmit }) {
                   />
                   <button
                     type="button"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     onClick={() => setShowPassword((s) => !s)}
                     className="absolute inset-y-0 right-2 flex items-center rounded-md px-2 text-muted-foreground hover:text-foreground"
                   >

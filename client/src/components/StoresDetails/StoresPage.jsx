@@ -63,9 +63,62 @@ const stores = [
   },
 ]
 
-export default function StoresPage() {
+export default function StoresPage(store) {
   const [query, setQuery] = useState("")
   const [city, setCity] = useState("all")
+   const [selectedRating, setSelectedRating] = useState(store.userRating || 0)
+  const [showRatingInput, setShowRatingInput] = useState(false)
+
+  // Handle rating submission
+  const handleRatingSubmit = async () => {
+    if (selectedRating > 0 && onRatingSubmit) {
+      try {
+        await onRatingSubmit(store.id, selectedRating)
+        setShowRatingInput(false)
+      } catch (error) {
+        console.error('Failed to submit rating:', error)
+        // Reset to previous rating on error
+        setSelectedRating(store.userRating || 0)
+      }
+    }
+  }
+
+  // Handle rating cancel
+  const handleRatingCancel = () => {
+    setSelectedRating(store.userRating || 0)
+    setShowRatingInput(false)
+  }
+const StarRating = ({ rating, onRatingChange, readonly = false, size = "sm" }) => {
+    const starSize = size === "lg" ? "h-6 w-6" : "h-4 w-4"
+    
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            disabled={readonly || isSubmittingRating}
+            onClick={() => !readonly && onRatingChange && onRatingChange(star)}
+            className={cn(
+              "transition-colors",
+              !readonly && "hover:text-yellow-400 cursor-pointer",
+              readonly && "cursor-default",
+              isSubmittingRating && "opacity-50"
+            )}
+          >
+            <Star
+              className={cn(
+                starSize,
+                star <= rating
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "fill-muted stroke-muted-foreground"
+              )}
+            />
+          </button>
+        ))}
+      </div>
+    )
+  }
 
   const cities = useMemo(() => {
     const set = new Set(stores.map((s) => s.city))

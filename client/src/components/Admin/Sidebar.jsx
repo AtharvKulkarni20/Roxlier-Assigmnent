@@ -22,18 +22,13 @@ const navMain = [
   { href: "/stores", label: "Stores", icon: Building2 },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/owners", label: "Store Owners", icon: StoreIcon },
-  { href: "/admin/reviews", label: "Reviews", icon: Star },
-  { href: "/admin/reports", label: "Reports", icon: FileBarChart },
-  { href: "/admin/moderation", label: "Moderation", icon: Flag },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+  { href: "/admin", label: "Reviews", icon: Star },
+
 ]
 
 const actions = [
-  { href: "/admin/add-admin", label: "Add Admin", icon: ShieldPlus },
-  { href: "/admin/add-user", label: "Add User", icon: UserPlus },
-  { href: "/admin/add-store", label: "Add Store", icon: Plus },
-  { href: "/admin/add-owner", label: "Add Store Owner", icon: Plus },
-  { href: "/admin/add-review", label: "Add Review", icon: MessageSquarePlus },
+  { href: "/admin/adduser", label: "Add User", icon: UserPlus },
+  { href: "/admin", label: "Add Review", icon: MessageSquarePlus },
 ]
 
 export function Sidebar() {

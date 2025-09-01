@@ -1,4 +1,5 @@
 import { Star } from "lucide-react"
+import { useEffect, useState } from "react"
 
 // StoreCard component
 function formatRating(rating) {
@@ -26,7 +27,7 @@ function StoreCard({ store }) {
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold leading-6 text-foreground text-pretty">{store.name}</h3>
           <span className="shrink-0 text-sm text-muted-foreground" aria-hidden="true">
-            {formatRating(rating)}
+            {store.totalRatings}
           </span>
         </div>
 
@@ -56,54 +57,20 @@ function StoreCard({ store }) {
   )
 }
 
-// Demo data
-const stores = [
-  {
-    id: "freshmart",
-    name: "FreshMart",
-    rating: 4.6,
-    description: "Neighborhood grocer with fresh produce, quick delivery, and friendly service.",
-    logoUrl: "/freshmart-logo.png",
-  },
-  {
-    id: "techhub",
-    name: "TechHub",
-    rating: 4.2,
-    description: "Electronics and gadgets with transparent reviews and solid warranty support.",
-    logoUrl: "/techhub-logo.png",
-  },
-  {
-    id: "stylecorner",
-    name: "StyleCorner",
-    rating: 4.0,
-    description: "Trendy apparel and accessories from local designers and emerging brands.",
-    logoUrl: "/stylecorner-logo.png",
-  },
-  {
-    id: "booknest",
-    name: "BookNest",
-    rating: 4.8,
-    description: "Independent bookstore with curated picks, events, and a cozy reading nook.",
-    logoUrl: "/booknest-logo.png",
-  },
-  {
-    id: "petpals",
-    name: "PetPals",
-    rating: 3.9,
-    description: "Pet supplies and grooming with helpful staff and reliable inventory.",
-    logoUrl: "/petpals-logo.png",
-  },
-  {
-    id: "homefair",
-    name: "HomeFair",
-    rating: 4.3,
-    description: "Home essentials and decor with fair pricing and easy returns.",
-    logoUrl: "/homefair-logo.png",
-  },
-]
 
 // Page component
 export default function StoresList() {
+  const [store, setStore] = useState([])
+
+  useEffect(() => {
+    const fetchStores = async () => {
+      const response = await axios.get("http://localhost:5000/api/user/stores")
+      const data = await response.data.stores
+      setStore(data)
+    }
+    fetchStores()
+  }, [])
+
   return (
     <main className="mx-auto max-w-3xl px-4 py-10">
       {/* Header */}
@@ -116,7 +83,7 @@ export default function StoresList() {
 
       {/* List */}
       <ul className="flex flex-col gap-4">
-        {stores.map((s) => (
+        {store.map((s) => (
           <StoreCard key={s.id} store={s} />
         ))}
       </ul>

@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
-export function StatsCards({ users, stores, owners }) {
+export function StatsCards({ users, stores, admin }) {
   const items = [
     { label: "Users", value: users },
     { label: "Stores", value: stores },
-    { label: "Store Owners", value: owners },
+    { label: "Admin", value: admin },
   ]
 
   return (
