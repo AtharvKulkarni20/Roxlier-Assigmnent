@@ -32,7 +32,7 @@ const makeAuthenticatedRequest = async (url, options = {}) => {
     if (response.status === 401 || response.status === 403) {
       // Token expired or invalid
       localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      localStorage.removeUser('user');
       throw new Error('Authentication failed. Please login again.');
     }
     throw new Error(data.error || 'Request failed');

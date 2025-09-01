@@ -1,21 +1,21 @@
-import { Star } from "lucide-react"
+import { Star } from "lucide-react";
 
 function formatRating(rating) {
-  const clamped = Math.max(0, Math.min(5, rating))
-  return (Math.round(clamped * 10) / 10).toFixed(1)
+  const clamped = Math.max(0, Math.min(5, rating));
+  return (Math.round(clamped * 10) / 10).toFixed(1);
 }
 
 export function StoreCard({ store, onStoreClick }) {
-  const rating = Math.max(0, Math.min(5, store.rating))
-  const full = Math.floor(rating)
-  const hasHalf = rating - full >= 0.5
-  const empty = 5 - full - (hasHalf ? 1 : 0)
+  const rating = Math.max(0, Math.min(5, store.rating));
+  const full = Math.floor(rating);
+  const hasHalf = rating - full >= 0.5;
+  const empty = 5 - full - (hasHalf ? 1 : 0);
 
   const handleClick = () => {
     if (onStoreClick) {
-      onStoreClick(store.id)
+      onStoreClick(store.id);
     }
-  }
+  };
 
   return (
     <li className="rounded-xl border bg-card shadow-sm transition-colors hover:bg-muted/40">
@@ -27,7 +27,13 @@ export function StoreCard({ store, onStoreClick }) {
       >
         {/* Square logo */}
         <img
-          src={store.logoUrl ?? "/placeholder.svg?height=64&width=64&query=store%20logo"}
+          src={
+            store.logoUrl ??
+            "/placeholder.svg?height=64&width=64&query=store%20logo"
+          }
+          onError={(e) => {
+            e.target.src = "/default.png"; // fallback if image is missing/broken
+          }}
           alt={`${store.name} logo`}
           className="size-16 rounded-md object-cover"
         />
@@ -35,8 +41,13 @@ export function StoreCard({ store, onStoreClick }) {
         {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-base font-semibold leading-6 text-foreground text-pretty">{store.name}</h3>
-            <span className="shrink-0 text-sm text-muted-foreground" aria-hidden="true">
+            <h3 className="text-base font-semibold leading-6 text-foreground text-pretty">
+              {store.name}
+            </h3>
+            <span
+              className="shrink-0 text-sm text-muted-foreground"
+              aria-hidden="true"
+            >
               {formatRating(rating)}
             </span>
           </div>
@@ -48,7 +59,11 @@ export function StoreCard({ store, onStoreClick }) {
             aria-label={`${formatRating(rating)} out of 5 stars`}
           >
             {Array.from({ length: full }).map((_, i) => (
-              <Star key={`full-${i}`} className="size-4 fill-yellow-500 text-yellow-500" aria-hidden="true" />
+              <Star
+                key={`full-${i}`}
+                className="size-4 fill-yellow-500 text-yellow-500"
+                aria-hidden="true"
+              />
             ))}
             {hasHalf && (
               <div className="relative">
@@ -61,12 +76,18 @@ export function StoreCard({ store, onStoreClick }) {
               </div>
             )}
             {Array.from({ length: empty }).map((_, i) => (
-              <Star key={`empty-${i}`} className="size-4 text-muted-foreground" aria-hidden="true" />
+              <Star
+                key={`empty-${i}`}
+                className="size-4 text-muted-foreground"
+                aria-hidden="true"
+              />
             ))}
           </div>
 
-          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{store.description}</p>
-          
+          <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+            {store.description}
+          </p>
+
           {/* Show user's rating if available */}
           {store.userRating && (
             <div className="mt-2 text-xs text-blue-600">
@@ -76,5 +97,5 @@ export function StoreCard({ store, onStoreClick }) {
         </div>
       </button>
     </li>
-  )
+  );
 }

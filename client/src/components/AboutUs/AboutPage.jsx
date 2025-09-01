@@ -39,11 +39,9 @@ export default function AboutPage() {
 
           <div className="flex gap-3">
             <Link to="/stores">
-              <Button variant="ghost">Explore Stores</Button>
+              <Button variant="ghost" className="bg-black hover:text-black hover:border-2 text-white ">Explore Stores</Button>
             </Link>
-            <Link to="/rating">
-              <Button className="bg-black text-white hover:bg-zinc-900">Rate a Store</Button>
-            </Link>
+           
           </div>
         </CardContent>
       </Card>

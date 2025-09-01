@@ -7,14 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import axios from "axios"
-
-// Simple toast for demonstration
-const useToast = () => ({
-  toast: ({ title, description, variant }) => alert(`${title}\n${description}`)
-})
+import toast, { Toaster } from "react-hot-toast"   // ✅ react-hot-toast
 
 export default function AddAdminForm() {
-  const { toast } = useToast()
   const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     name: "",
@@ -23,45 +18,69 @@ export default function AddAdminForm() {
     role: "",
   })
 
- function update(key, val) {
+  function update(key, val) {
     setForm((f) => ({ ...f, [key]: val }))
   }
 
   async function onSubmit(e) {
     e.preventDefault()
+    setSubmitting(true)
+    
+    // Validation checks
     if (!form.name.trim() || !form.email.trim() || !form.role) {
-      toast({ title: "Missing fields", description: "Please fill all required fields." })
+      toast.error("Please fill all required fields.")
+      setSubmitting(false)
       return
     }
 
-   const res = await axios.post(
-  "http://localhost:5000/api/admin/users",
-  {
-    name: form.name,
-    email: form.email,
-    phone: form.phone,
-    role: form.role,
-    password: "Asg%6I09"
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json"
+    if (form.name.trim().length < 20) {
+      toast.error("Name should be 20 characters or more.")
+      setSubmitting(false)
+      return
     }
-  }
-);
 
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/admin/users",
+        {
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          role: form.role,
+          password: "Asg%6I09"
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json"
+          }
+        }
+      )
 
-    if(res.ok) {
-        toast({ title: `${form.role} created`, description: `${form.name} assigned role: ${form.role}` })
+      if (res.status === 200 || res.status === 201) {
+        toast.success(`${form.name} has been created with role: ${form.role}`)
         setForm({ name: "", email: "", phone: "", role: "" })
-        setSubmitting(false)
-
+      }
+    } catch (error) {
+      if (error.response?.status === 409 || error.response?.data?.message?.includes("already exists")) {
+        toast.error("A user with this email already exists.")
+      } else if (error.response?.status === 400) {
+        toast.error(error.response?.data?.message || "Invalid input. Please check your data.")
+      } else if (error.response?.status === 401 || error.response?.status === 403) {
+        toast.error("You don't have permission to create users.")
+      } else {
+        toast.error(error.response?.data?.message || "Failed to create user. Please try again.")
+      }
+    } finally {
+      setSubmitting(false)
     }
   }
 
   return (
     <div className="container mx-auto max-w-2xl py-10 mb-24">
+      {/* ✅ Toaster must be rendered once in the app */}
+      <Toaster position="top-right" reverseOrder={false} />
+
       <Card className="w-full max-w-xl p-6">
         <CardHeader>
           <CardTitle>Add Admin</CardTitle>

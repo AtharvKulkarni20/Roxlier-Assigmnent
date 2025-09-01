@@ -8,10 +8,9 @@ import { Navbar } from "./components/Nav/Navbar";
 import HomePage from "./components/HeroSection/HomePage";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import Footer from "./components/Footer/Footer";
-import StoresPage from "./components/StoresDetails/StoresPage";
+import StoresContainer from "./components/StoresDetails/StoresContainer"; // Import your new container
 import OwnerDashboardPage from "./components/OwnerDash/OwnerDashBoardPage";
 import AddUser from "./components/Admin/AddUser";
-import StoreDetails from "./components/StoresDetails/StoreDetails";
 import { useContext } from "react";
 import { UserContext } from "./context/userContextProvider";
 
@@ -35,12 +34,14 @@ function App() {
           user?.role ===
           "OWNER" ? (
             <>
-              <Route path="/storeowner" element={<OwnerDashboardPage />} />
+               <Route path="/storeowner/dashboard" element={<OwnerDashboardPage />} />
             </>
           ): <></>
         )}
-        <Route path="/stores" element={<StoresPage />} />
-        <Route path="/storedetails" element={<StoreDetails />} />
+        {/* Replace both store routes with the container that handles navigation */}
+        <Route path="/stores" element={<StoresContainer />} />
+        <Route path="/stores/:storeId" element={<StoresContainer />} />
+       
       </Routes>
       <Footer />
     </>

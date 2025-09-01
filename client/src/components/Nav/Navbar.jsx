@@ -5,9 +5,7 @@ import { DoorOpen, LogOut } from "lucide-react";
 import { UserContext } from "@/context/userContextProvider";
 
 export function Navbar() {
-
-  const {user, logout} = useContext(UserContext)
-
+  const { user, logout } = useContext(UserContext);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
@@ -28,21 +26,29 @@ export function Navbar() {
           aria-label="Main navigation"
           className="flex items-center justify-center gap-6"
         >
-          {
-            user?.role === "ADMIN" ?
+          {user?.role === "ADMIN" ? (
             <Link
               to="/admin"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               Dashboard
-            </Link> :
-          <Link
-            to="/"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Home
-          </Link>
-          }
+            </Link>
+          ) : user?.role === "OWNER" ? (
+            <Link
+              to="/storeowner/dashboard"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Home
+            </Link>
+          )}
+
           <Link
             to="/stores"
             className="text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -66,13 +72,17 @@ export function Navbar() {
         {/* Right: Auth buttons */}
         <div className="flex items-center justify-end gap-2">
           {user ? (
-            <><LogOut className="cursor-pointer" onClick={() => {
-              logout()
-            }} /></>
+            <>
+              <LogOut
+                className="cursor-pointer"
+                onClick={() => {
+                  logout();
+                }}
+              />
+            </>
           ) : (
             <>
               <Link to="/login" aria-label="Log in">
-              
                 <Button variant="ghost" className="px-4">
                   Log in
                 </Button>
