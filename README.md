@@ -106,10 +106,8 @@ npm run dev
 |-------|--------
 | <img src="client/public/assets/Email.png" width="500"/> | <img src="client/public/assets/AddUsers.png" width="500"/> | 
 | Password Reset Mail | Forgot Password |
-|-----------------|----------------|
 | <img src="client/public/assets/ForgotPass.png" width="500"/> | <img src="client/public/assets/Resetpass.png" width="500"/> |
 | Reset Password | 
-|----------------------|
  <img src="client/public/assets/PasswordResetMail.png" width="500"/> |
 
 ---
