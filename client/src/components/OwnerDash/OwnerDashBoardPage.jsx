@@ -22,7 +22,7 @@ export default function OwnerDashboardPage() {
 
     useEffect(() => {
         async function loadData() {
-            const res = await axios.get('http://localhost:5001/api/store/dashboard', {
+            const res = await axios.get('http://localhost:5000/api/store/dashboard', {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 }
@@ -134,13 +134,13 @@ export default function OwnerDashboardPage() {
             <main className="container mx-auto max-w-7xl px-4 py-8">
                 {data.length > 1 ? (
                     <Tabs defaultValue="0" className="w-full">
-                        <TabsList className="grid w-xl grid-cols-2 mb-8">
+                        <TabsList className="grid w-full grid-cols-2 mb-8">
                             {data.map((item, index) => (
                                 <TabsTrigger key={item.store.id} value={index.toString()}>
                                     <Store className="h-4 w-4 mr-2" />
                                     {item.store.name}
                                 </TabsTrigger>
-                            ))} 
+                            ))}
                         </TabsList>
                         {data.map((item, index) => (
                             <TabsContent key={item.store.id} value={index.toString()}>

@@ -25,7 +25,7 @@ const makeAuthenticatedRequest = async (url, options = {}) => {
     }
   };
   
-  const response = await fetch(`http://localhost:5001/api${url}`, config);
+  const response = await fetch(`http://localhost:5000/api${url}`, config);
   const data = await response.json();
   
   if (!response.ok) {
