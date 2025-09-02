@@ -8,11 +8,13 @@ import { Navbar } from "./components/Nav/Navbar";
 import HomePage from "./components/HeroSection/HomePage";
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import Footer from "./components/Footer/Footer";
-import StoresContainer from "./components/StoresDetails/StoresContainer"; // Import your new container
+import StoresContainer from "./components/StoresDetails/StoresContainer"; 
 import OwnerDashboardPage from "./components/OwnerDash/OwnerDashBoardPage";
 import AddUser from "./components/Admin/AddUser";
 import { useContext } from "react";
 import { UserContext } from "./context/userContextProvider";
+import {ForgotPassword} from "./components/Auth/Login/ForgotPassword";
+import {ResetPassword} from "./components/Auth/Login/ResetPassword";
 
 function App() {
   const { user } = useContext(UserContext);
@@ -41,6 +43,8 @@ function App() {
         {/* Replace both store routes with the container that handles navigation */}
         <Route path="/stores" element={<StoresContainer />} />
         <Route path="/stores/:storeId" element={<StoresContainer />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
        
       </Routes>
       <Footer />

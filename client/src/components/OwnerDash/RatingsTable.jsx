@@ -75,17 +75,17 @@ export default function RatingsTable({ ratings }) {
               <TableCell className="py-6">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12  rounded-xl flex items-center justify-center border-black border-1 font-bold text-sm shadow-lg">
-                    {r.userName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                    {r.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-900 text-base">{r.userName}</p>
-                    <p className="text-sm text-slate-500 md:hidden">{r.userEmail}</p>
+                    <p className="font-semibold text-slate-900 text-base">{r.name}</p>
+                    <p className="text-sm text-slate-500 md:hidden">{r.email}</p>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="hidden md:table-cell text-slate-600">
                 <div className="bg-slate-50 rounded-lg px-3 py-2 border border-slate-200">
-                  <code className="text-sm">{r.userEmail}</code>
+                  <code className="text-sm">{r.email}</code>
                 </div>
               </TableCell>
               <TableCell>
@@ -110,7 +110,7 @@ export default function RatingsTable({ ratings }) {
               <TableCell className="hidden lg:table-cell max-w-[400px]">
                 {r.comment ? (
                   <div className="bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl p-4 border border-slate-200">
-                    <p className="text-sm text-slate-700 leading-relaxed">{r.comment}</p>
+                    <p className="text-sm text-slate-700 leading-relaxed">{r?.comment}</p>
                   </div>
                 ) : (
                   <div className="text-center py-2">

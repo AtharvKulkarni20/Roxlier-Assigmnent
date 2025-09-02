@@ -147,7 +147,7 @@ export function Login({ onSubmit }) {
 
               <div className="pt-2 text-center text-sm">
                 <a
-                  href="#"
+                  href="/forgot-password"
                   className="text-muted-foreground underline underline-offset-4"
                 >
                   Forgot Password?
